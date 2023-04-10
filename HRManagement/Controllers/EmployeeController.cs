@@ -6,11 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 namespace HRManagement.Controllers
 {
     [Route("api/[controller]")]
-    public class EmployeesController : Controller
+    public class EmployeeController : Controller
     {
         private readonly IEmployeeService _employeesService;
         private readonly IFilterService _filtersService;
-        public EmployeesController(IEmployeeService employeeService, IFilterService filtersService)
+        public EmployeeController(IEmployeeService employeeService, IFilterService filtersService)
         {
             _employeesService = employeeService;
             _filtersService = filtersService;
