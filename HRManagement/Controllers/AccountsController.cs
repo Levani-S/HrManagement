@@ -14,19 +14,19 @@ namespace HRManagement.Controllers
         }
         [HttpPost]
         [Route("RegisterUser")]
-        public async Task<IActionResult> RegisterUser(UserRegistrationViewModel userInfo)
+        public async Task<IActionResult> RegisterUser([FromBody] UserRegistrationViewModel userInfo)
         {
             return new OkObjectResult(await _accountsService.RegisterUser(userInfo));
         }
         [HttpPost]
         [Route("LoginUser")]
-        public async Task<IActionResult> LoginUser(UserLoginViewModel loginInput)
+        public async Task<IActionResult> LoginUser([FromBody] UserLoginViewModel loginInput)
         {
             return new OkObjectResult(await _accountsService.LoginUser(loginInput));
         }
         [HttpPost]
         [Route("CreateNewTokens")]
-        public async Task<IActionResult> CreateNewTokensForUser(string refreshToken)
+        public async Task<IActionResult> CreateNewTokensForUser([FromBody]string refreshToken)
         {
             var result = await _accountsService.RefreshAccesToken(refreshToken);
             if (result == null)

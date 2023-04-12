@@ -30,7 +30,14 @@ namespace HRManagement.Services
         public async Task<UserViewModel> RegisterUser(UserRegistrationViewModel userInfo)
         {
             ValidateOnNull<UserRegistrationViewModel>.ValidateDataOnNull(userInfo);
-
+            if (_userManager.Users.Any(x => x.UserName == userInfo.UserName))
+            {
+                throw new CouldNotUpdateUserException("User with that Username already exists please Log-in");
+            }
+            if (_userManager.Users.Any(x => x.Email == userInfo.Email))
+            {
+                throw new CouldNotUpdateUserException("User with that Email already exists please Log-in");
+            }
             if (userInfo.Password != userInfo.ConfirmPassword)
             {
                 throw new CouldNotRegisterUserException("The password and confirmation password do not match.");
@@ -82,6 +89,10 @@ namespace HRManagement.Services
             if (await _jwtTokenService.ValidateRefreshToken(refreshToken))
             {
                 var userId = _inMemoryCache.Get(refreshToken);
+                if (userId == null)
+                {
+                    throw new InvalidOperationException("User ID not found in the cache");
+                }
                 var user = await _userManager.FindByIdAsync(userId.ToString());
                 var roles = await _userManager.GetRolesAsync(user);
                 var accessToken = await _jwtTokenService.GenerateJwtAccessToken(user, roles);

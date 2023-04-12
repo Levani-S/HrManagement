@@ -67,7 +67,7 @@ namespace HRManagement.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Employees");
+                    b.ToTable("Employees", (string)null);
                 });
 
             modelBuilder.Entity("HRManagement.Models.GenderModel", b =>
@@ -82,7 +82,7 @@ namespace HRManagement.Migrations
 
                     b.HasKey("GenderId");
 
-                    b.ToTable("Genders");
+                    b.ToTable("Genders", (string)null);
                 });
 
             modelBuilder.Entity("HRManagement.Models.UserModel", b =>

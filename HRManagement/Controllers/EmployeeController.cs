@@ -1,10 +1,13 @@
-﻿using HRManagement.Filters;
+﻿using HRManagement.CustomExceptions;
+using HRManagement.Filters;
 using HRManagement.Models;
 using HRManagement.Services.ServiceInterfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HRManagement.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     public class EmployeeController : Controller
     {
@@ -21,7 +24,14 @@ namespace HRManagement.Controllers
         {
             return new OkObjectResult(await _employeesService.GetAllEmployee());
         }
-        [HttpPost("Filter")]
+        [HttpGet]
+        [Route("GetEmployeeById/{id}")]
+        public async Task<IActionResult> GetEmployeeById(Guid id)
+        {
+            return new OkObjectResult(await _employeesService.GetEmployeeById(id));
+        }
+        [HttpPost]
+        [Route("Filter")]
         public async Task<IActionResult> FilterEmployees([FromBody] List<EmployeeFilter> employeeFilters)
         {
             var result = await _filtersService.FilterEmployees(employeeFilters);
@@ -35,9 +45,21 @@ namespace HRManagement.Controllers
         }
         [HttpPut]
         [Route("EditEmployee/{id}")]
-        public async Task<IActionResult> EditEmployee([FromBody]EmployeeModel employee, Guid id)
+        public async Task<IActionResult> EditEmployee([FromBody] EmployeeModel employee, Guid id)
         {
-            return new OkObjectResult(await _employeesService.EditEmployee(employee,id));
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var updatedEmployee = await _employeesService.EditEmployee(employee, id);
+                return Ok(updatedEmployee);
+            }
+            catch (CouldNotUpdateUserException ex)
+            {
+                return BadRequest(new { error = "" + ex.Message });
+            }
         }
         [HttpDelete]
         [Route("DeleteEmployee/{id}")]

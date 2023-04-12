@@ -2,6 +2,7 @@
 using HRManagement.Data.Repositories.RepositoryInterfaces;
 using HRManagement.Models;
 using HRManagement.ValidateData;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 
 namespace HRManagement.Data.Repositories
@@ -17,11 +18,15 @@ namespace HRManagement.Data.Repositories
         {
             return await _context.Employees.ToListAsync();
         }
-        public async Task<List<EmployeeModel>> GetEmployeesByFirstNameOrLastName(string firstName, string lastName)
+        public async Task<EmployeeModel?> GetEmployeeById(Guid id)
         {
-            List<EmployeeModel> employees = await _context.Employees.Where(employee => employee.FirstName == firstName || employee.LastName == lastName).ToListAsync();
+            EmployeeModel? employee = await _context.Employees
+                .Where(employees => employees.Id == id)
+                .FirstOrDefaultAsync();
 
-            return employees;
+            ValidateOnNull<EmployeeModel?>.ValidateDataOnNull(employee);
+
+            return employee;
         }
         public async Task<EmployeeModel> AddEmployee(EmployeeModel newEmployee)
         {
@@ -29,11 +34,11 @@ namespace HRManagement.Data.Repositories
 
             if (_context.Employees.Any(x => x.IdentifyNumber == newEmployee.IdentifyNumber))
             {
-                throw new AlreadyExistsException("User with that ID Number already exists");
+                throw new AlreadyExistsException("Employee with that ID Number already exists");
             }
             if (_context.Employees.Any(x => x.Email == newEmployee.Email))
             {
-                throw new AlreadyExistsException("User with that E-Mail already exists");
+                throw new AlreadyExistsException("Employee with that E-Mail already exists");
             }
             EmployeeModel employee = new EmployeeModel()
             {
@@ -61,14 +66,22 @@ namespace HRManagement.Data.Repositories
                 throw new ArgumentNullException("Incorrect Edit!");
             }
             var employeeToUpdate = await _context.Employees.Where(x => x.Id == id).FirstOrDefaultAsync();
-
-            if (_context.Employees.Any(x => x.IdentifyNumber == employee.IdentifyNumber))
+            if (employeeToUpdate == null)
             {
-                throw new CouldNotUpdateUserException("User with that ID Number already exists");
+                throw new CouldNotUpdateUserException("Employees to update not found");
             }
-            if (_context.Employees.Any(x => x.Email == employee.Email))
+            if (employee.IdentifyNumber != employeeToUpdate.IdentifyNumber)
             {
-                throw new CouldNotUpdateUserException("User with that E-Mail already exists");
+                if (_context.Employees.Any(x => x.IdentifyNumber == employee.IdentifyNumber))
+                {
+                    throw new CouldNotUpdateUserException("User with that ID Number already exists");
+                }
+            }
+            if (employee.Email != employeeToUpdate.Email) {
+                if (_context.Employees.Any(x => x.Email == employee.Email))
+                {
+                    throw new CouldNotUpdateUserException("User with that E-Mail already exists");
+                }
             }
 
             employeeToUpdate.IdentifyNumber = employee.IdentifyNumber;

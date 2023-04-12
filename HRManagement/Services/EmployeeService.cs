@@ -14,19 +14,23 @@ namespace HRManagement.Services
             _unitOfWork = unitOfWork;
             _employeesRepository = _unitOfWork.Employees;
         }
-        public  Task<List<EmployeeModel>> GetAllEmployee()
+        public Task<List<EmployeeModel>> GetAllEmployee()
         {
             return _employeesRepository.GetAllEmployee();
         }
-        public  Task<EmployeeModel> AddEmployee(EmployeeModel newEmployee)
+        public Task<EmployeeModel?> GetEmployeeById(Guid id)
+        {
+            return _employeesRepository.GetEmployeeById(id);
+        }
+        public Task<EmployeeModel> AddEmployee(EmployeeModel newEmployee)
         {
             return _employeesRepository.AddEmployee(newEmployee);
         }
         public Task<EmployeeModel> EditEmployee(EmployeeModel employee, Guid id)
         {
-            return _employeesRepository.EditEmployee(employee,id);
+            return _employeesRepository.EditEmployee(employee, id);
         }
-        public  Task<EmployeeModel> DeleteEmployee(Guid id)
+        public Task<EmployeeModel> DeleteEmployee(Guid id)
         {
             return _employeesRepository.DeleteEmployee(id);
         }
